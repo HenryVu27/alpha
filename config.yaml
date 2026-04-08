@@ -1,0 +1,138 @@
+portfolio:
+  cash: 6000
+  positions:
+    - ticker: "DAL"
+      shares: 36
+      entry_price: 69.0
+      stop_loss: 65.55
+      profit_target: 82.0
+    - ticker: "NVDA"
+      shares: 11
+      entry_price: 183.0
+      stop_loss: 173.85
+      profit_target: 200.0
+    - ticker: "BTC-USD"
+      amount_usd: 1000
+      stop_loss: 62000
+      profit_target: 80000
+
+watchlist:
+  - ticker: "VTI"
+    buy_target: 333.0
+  - ticker: "XLE"
+    buy_target: 55.0
+
+geopolitical:
+  keywords:
+    - "Iran"
+    - "Hormuz"
+    - "ceasefire"
+    - "strikes"
+    - "oil"
+    - "sanctions"
+  gdelt_update_interval_minutes: 15
+  llm_provider: "anthropic"
+  llm_model: "claude-opus-4-6"
+  llm_daily_cost_cap_usd: 10.0
+
+regime:
+  n_states: 3
+  retrain_schedule: "weekly"
+  features:
+    - "vix"
+    - "vix_term_slope"
+    - "yield_10y_5d_delta"
+    - "crude_5d_return"
+    - "spy_5d_realized_vol"
+    - "usdjpy_5d_delta"
+  training_crises:
+    - name: "Ukraine 2022"
+      start: "2022-02-01"
+      end: "2022-05-01"
+    - name: "Red Sea 2023"
+      start: "2023-11-01"
+      end: "2024-03-01"
+    - name: "Iran 2026"
+      start: "2026-02-28"
+      end: null
+  bocpd_hazard_lambda: 250
+  state_labels:
+    0: "risk_on"
+    1: "stalemate"
+    2: "escalation"
+
+alerts:
+  regime_shift_threshold: 0.6
+  sentiment_strong_threshold: 0.5
+  sentiment_velocity_threshold: 0.15
+  branching_ratio_critical: 0.8
+  vix_high: 30
+  vix_low: 18
+  skew_elevated: 150
+  pcr_heavy: 1.3
+  pcr_light: 0.7
+  convergence_min_layers: 3
+  convergence_high_threshold: 0.5
+  convergence_moderate_threshold: 0.3
+  z_score_entry_threshold: 2.0
+  half_life_suppression_days: 15
+
+sizing:
+  kelly_fraction: 0.25
+  target_annual_vol: 0.15
+  max_single_position_pct: 0.40
+  max_total_exposure_pct: 0.85
+  max_drawdown_per_position_pct: 0.05
+  realized_vol_window_days: 20
+
+correlation:
+  rolling_window_days: 5
+  rolling_window_slow_days: 21
+  eigenvalue_crisis_threshold: 0.55
+  assets:
+    - "VTI"
+    - "CL=F"
+    - "^VIX"
+    - "GLD"
+    - "TLT"
+    - "DX-Y.NYB"
+    - "XLE"
+    - "DAL"
+    - "NVDA"
+  focus_pairs:
+    - ["VTI", "CL=F"]
+    - ["VTI", "^VIX"]
+    - ["DAL", "CL=F"]
+    - ["GLD", "^VIX"]
+  lead_lag_max_days: 3
+
+mean_reversion:
+  factor_tickers:
+    market: "SPY"
+    volatility: "^VIX"
+  sector_map:
+    DAL: "XLE"
+    NVDA: "XLK"
+  recalibration_schedule: "weekly"
+
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  stream_maxlen: 10000
+
+timing:
+  signal_update_interval_minutes: 15
+  price_check_owned_seconds: 60
+  price_check_watchlist_seconds: 300
+  daily_summary_time: "16:15"
+  timezone: "America/Chicago"
+  staleness_warning_seconds: 1800
+
+logging:
+  level: "INFO"
+  file: "logs/trading_system.log"
+  format: "json"
+
+database:
+  path: "data/trading_system.db"
