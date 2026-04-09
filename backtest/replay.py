@@ -60,9 +60,14 @@ async def run_backtest(config: AppConfig, crisis_name: str | None = None) -> dic
         )
 
         # Fetch and concatenate training data
+        from datetime import date as date_type
         training_features_list = []
         for tc in training_crises:
-            end_date = tc.end or holdout.start  # fallback if end is None
+            end_date = tc.end or date_type.today()
+            # Ensure start < end
+            if tc.start >= end_date:
+                logger.warning("Skipping crisis %s: start >= end", tc.name)
+                continue
             try:
                 raw = fetcher.fetch_regime_features(
                     start=str(tc.start),
@@ -94,9 +99,7 @@ async def run_backtest(config: AppConfig, crisis_name: str | None = None) -> dic
         detector.fit(training_data)
 
         # Fetch holdout crisis data
-        holdout_end = holdout.end or holdout.start.replace(
-            month=min(holdout.start.month + 3, 12)
-        )
+        holdout_end = holdout.end or date_type.today()
         try:
             raw_holdout = fetcher.fetch_regime_features(
                 start=str(holdout.start),

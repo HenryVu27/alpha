@@ -1,0 +1,468 @@
+{
+  "total_signals": 55,
+  "overall_hit_rate": 0.0,
+  "crises": {
+    "Ukraine 2022": {
+      "num_signals": 0,
+      "hit_rate": null,
+      "false_positive_rate": null,
+      "regime_predictions_count": 47,
+      "signals": []
+    },
+    "Red Sea 2023": {
+      "num_signals": 0,
+      "hit_rate": null,
+      "false_positive_rate": null,
+      "regime_predictions_count": 67,
+      "signals": []
+    },
+    "Iran 2026": {
+      "num_signals": 55,
+      "hit_rate": 0.0,
+      "false_positive_rate": 0.7272727272727273,
+      "regime_predictions_count": 11,
+      "signals": [
+        {
+          "timestamp_idx": 10,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 10,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 10,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 10,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 10,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 11,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 11,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 11,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 11,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 11,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 12,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 12,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 12,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 12,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 12,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 13,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 13,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 13,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 13,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 13,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 14,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 14,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 14,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 14,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 14,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 15,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 15,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 15,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 15,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 15,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "high",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 16,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 16,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 16,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 16,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 16,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 17,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 17,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 17,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 17,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 17,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 18,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 18,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 18,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 18,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 18,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 19,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 19,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 19,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 19,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 19,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 20,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "XLE",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 20,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "VTI",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 20,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "NVDA",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 20,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "BTC-USD",
+          "conviction": "moderate",
+          "regime": "escalation"
+        },
+        {
+          "timestamp_idx": 20,
+          "half_life": 15,
+          "direction": "bearish",
+          "ticker": "DAL",
+          "conviction": "moderate",
+          "regime": "escalation"
+        }
+      ]
+    }
+  }
+}

@@ -214,19 +214,35 @@ async def run_signal_cycle(
                 tickers=list(decision.get("tickers", {}).keys()),
             )
 
-            # --- 9. Check for high conviction alerts ---
+            # --- 9. Check for high conviction alerts (suppress repeats) ---
+            prev_decision = store.get_latest_layer_output("prev_decision")
+            prev_convictions = prev_decision or {}
             for ticker, info in decision.get("tickers", {}).items():
                 conviction = info.get("conviction", {})
                 conv_data = info.get("convergence", {})
-                if conviction.get("conviction") == "high":
-                    direction = conviction.get("direction", "neutral")
-                    score = conv_data.get("score", 0)
-                    agreeing = conv_data.get("agreeing", 0)
+                conv_level = conviction.get("conviction", "")
+                direction = conviction.get("direction", "neutral")
+                score = conv_data.get("score", 0)
+                agreeing = conv_data.get("agreeing", 0)
+
+                # Only alert if conviction changed from previous cycle
+                prev_conv = prev_convictions.get(ticker, {})
+                prev_level = prev_conv.get("conviction", "")
+                prev_dir = prev_conv.get("direction", "")
+
+                if conv_level == "high" and (prev_level != "high" or prev_dir != direction):
                     await alert_mgr.send_alert(
                         AlertSeverity.CRITICAL,
                         "high_conviction",
                         f"{ticker}: {direction} (score={score:.2f}, agreeing={agreeing})",
                     )
+
+            # Save current convictions to suppress repeats next cycle
+            current_convictions = {
+                t: info.get("conviction", {})
+                for t, info in decision.get("tickers", {}).items()
+            }
+            store.save_layer_output("prev_decision", current_convictions)
 
             # --- 10. Flush batched alerts ---
             await alert_mgr.flush_and_send()
@@ -253,7 +269,7 @@ async def main_async(config_path: str, backtest: bool = False, crisis: str = Non
     if backtest:
         from backtest.replay import run_backtest
 
-        result = run_backtest(config, crisis_name=crisis)
+        result = await run_backtest(config, crisis_name=crisis)
         logger.info("backtest_complete", result=result)
         return
 
