@@ -9,6 +9,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import pandas as pd
 
 from common.config import load_config
@@ -69,7 +72,7 @@ async def run_signal_cycle(
             all_headlines = gdelt_headlines + newsapi_headlines
 
             filtered = sentiment_layer.filter_headlines(all_headlines)
-            scores = sentiment_layer.scorer.score_batch(
+            scores = sentiment_layer.scorer.score_headlines(
                 [h.get("title", "") for h in filtered]
             )
 
@@ -81,8 +84,10 @@ async def run_signal_cycle(
             if scores:
                 sentiment_history.append(float(sum(scores) / len(scores)))
 
+            import numpy as np
+            event_times = np.array([float(i) for i in range(len(filtered))]) if filtered else np.array([])
             hawkes_result = sentiment_layer.hawkes.estimate(
-                [i for i in range(len(filtered))]
+                event_times, window=max(len(filtered), 1)
             )
 
             top_headlines = [h.get("title", "") for h in filtered[:5]]
@@ -164,11 +169,15 @@ async def run_signal_cycle(
                 corr_output = {"correlation_regime": "normal"}
                 serializable_corr = corr_output
 
-            # --- 6. Publish all outputs to Redis ---
-            await redis.publish("regime", regime_output)
-            await redis.publish("sentiment", sentiment_output)
-            await redis.publish("options", options_output)
-            await redis.publish("correlation", serializable_corr)
+            # --- 6. Publish all outputs to Redis (if available) ---
+            if redis is not None:
+                try:
+                    await redis.publish("regime", regime_output)
+                    await redis.publish("sentiment", sentiment_output)
+                    await redis.publish("options", options_output)
+                    await redis.publish("correlation", serializable_corr)
+                except Exception as e:
+                    logger.warning("redis_publish_failed", error=str(e))
 
             # --- 7. Decision engine aggregation ---
             layer_outputs = {
@@ -194,7 +203,11 @@ async def run_signal_cycle(
 
             # --- 8. Save decision snapshot ---
             store.save_decision_snapshot(decision)
-            await redis.publish("decision", decision)
+            if redis is not None:
+                try:
+                    await redis.publish("decision", decision)
+                except Exception:
+                    pass
             logger.info(
                 "decision_snapshot",
                 regime=decision.get("regime_label"),
@@ -204,13 +217,15 @@ async def run_signal_cycle(
             # --- 9. Check for high conviction alerts ---
             for ticker, info in decision.get("tickers", {}).items():
                 conviction = info.get("conviction", {})
+                conv_data = info.get("convergence", {})
                 if conviction.get("conviction") == "high":
                     direction = conviction.get("direction", "neutral")
+                    score = conv_data.get("score", 0)
+                    agreeing = conv_data.get("agreeing", 0)
                     await alert_mgr.send_alert(
                         AlertSeverity.CRITICAL,
                         "high_conviction",
-                        f"{ticker}: {direction} (score={info['convergence']['score']:.2f}, "
-                        f"agreeing={info['convergence']['agreeing']})",
+                        f"{ticker}: {direction} (score={score:.2f}, agreeing={agreeing})",
                     )
 
             # --- 10. Flush batched alerts ---
@@ -246,13 +261,20 @@ async def main_async(config_path: str, backtest: bool = False, crisis: str = Non
     store = DataStore(config.database.path)
     store.init_db()
 
-    redis = RedisStreamClient(
-        host=config.redis.host,
-        port=config.redis.port,
-        db=config.redis.db,
-        stream_maxlen=config.redis.stream_maxlen,
-    )
-    await redis.connect()
+    redis = None
+    try:
+        redis = RedisStreamClient(
+            host=config.redis.host,
+            port=config.redis.port,
+            db=config.redis.db,
+            stream_maxlen=config.redis.stream_maxlen,
+        )
+        await redis.connect()
+        await redis._redis.ping()
+        logger.info("redis_connected")
+    except Exception as e:
+        logger.warning("redis_unavailable_running_without", error=str(e))
+        redis = None
 
     fetcher = DataFetcher()
 
@@ -360,7 +382,8 @@ async def main_async(config_path: str, backtest: bool = False, crisis: str = Non
     except asyncio.CancelledError:
         logger.info("tasks_cancelled")
     finally:
-        await redis.close()
+        if redis is not None:
+            await redis.close()
         store.close()
         logger.info("system_shutdown_complete")
 
