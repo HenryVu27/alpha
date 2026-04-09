@@ -5,6 +5,7 @@ Task 8: Layer 2 of the trading system.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import re
 from typing import Optional
@@ -170,8 +171,8 @@ async def llm_contextual_analysis(
     )
 
     try:
-        if provider == "anthropic":
-            return await _call_anthropic(prompt, model)
+        if provider == "gemini":
+            return await _call_gemini(prompt, model)
         elif provider == "openai":
             return await _call_openai(prompt, model)
         else:
@@ -180,24 +181,27 @@ async def llm_contextual_analysis(
         return None
 
 
-async def _call_anthropic(prompt: str, model: str) -> Optional[dict]:
-    """Call Anthropic API for analysis."""
-    import anthropic
+async def _call_gemini(prompt: str, model: str) -> Optional[dict]:
+    """Call Google Gemini API for analysis."""
+    import os
 
-    client = anthropic.AsyncAnthropic()
-    response = await client.messages.create(
-        model=model,
-        max_tokens=256,
-        messages=[{"role": "user", "content": prompt}],
+    from google import genai
+
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+    response = await asyncio.get_event_loop().run_in_executor(
+        None,
+        lambda: client.models.generate_content(model=model, contents=prompt),
     )
 
-    text = response.content[0].text
+    text = response.text
     parsed = json.loads(text)
 
-    # Estimate cost from token usage
-    input_tokens = response.usage.input_tokens
-    output_tokens = response.usage.output_tokens
-    cost_usd = (input_tokens * 0.003 + output_tokens * 0.015) / 1000
+    # Estimate cost from token usage (Gemini 2.5 Flash pricing)
+    cost_usd = 0.0
+    if hasattr(response, "usage_metadata") and response.usage_metadata:
+        input_tokens = getattr(response.usage_metadata, "prompt_token_count", 0) or 0
+        output_tokens = getattr(response.usage_metadata, "candidates_token_count", 0) or 0
+        cost_usd = (input_tokens * 0.15 + output_tokens * 0.60) / 1_000_000
 
     return {
         "escalation_score": parsed["escalation_score"],

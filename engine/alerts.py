@@ -1,14 +1,16 @@
-"""Telegram alert manager for the trading system."""
+"""Twilio WhatsApp alert manager for the trading system."""
 
 from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
-from telegram import Bot, Update
-from telegram.ext import Application, CommandHandler, ContextTypes
+from twilio.rest import Client
+
+
+WHATSAPP_CHAR_LIMIT = 1600
 
 
 class AlertSeverity(Enum):
@@ -26,26 +28,35 @@ class AlertSeverity(Enum):
 
 
 class AlertManager:
-    """Manages alert formatting, batching, and Telegram delivery."""
+    """Manages alert formatting, batching, and Twilio WhatsApp delivery."""
 
-    def __init__(self, bot_token: str, chat_id: str, store=None):
-        self._bot_token = bot_token
-        self._chat_id = chat_id
+    def __init__(
+        self,
+        account_sid: str,
+        auth_token: str,
+        from_number: str,
+        to_number: str,
+        store=None,
+    ):
+        self._account_sid = account_sid
+        self._auth_token = auth_token
+        self._from_number = from_number
+        self._to_number = to_number
         self._store = store
         self._alert_queue: list[tuple[AlertSeverity, str, str]] = []
-        self._bot: Optional[Bot] = None
+        self._client: Optional[Client] = None
 
     def format_alert(self, severity: AlertSeverity, alert_type: str, message: str) -> str:
-        """Format an alert message with emoji, type, timestamp, and message."""
+        """Format an alert message with emoji, type, timestamp, and message (plain text)."""
         now = datetime.now(timezone.utc).strftime("%H:%M")
-        return f"{severity.emoji} *{alert_type}* [{now} UTC]\n{message}"
+        return f"{severity.emoji} {alert_type} [{now} UTC]\n{message}"
 
     def queue_alert(self, severity: AlertSeverity, alert_type: str, message: str):
         """Add an alert to the batch queue."""
         self._alert_queue.append((severity, alert_type, message))
 
     def flush_queue(self) -> list[str]:
-        """Combine all queued alerts into a single message, clear queue, return list."""
+        """Combine all queued alerts into messages respecting WhatsApp char limit."""
         if not self._alert_queue:
             return []
         parts = [
@@ -53,14 +64,36 @@ class AlertManager:
             for sev, atype, msg in self._alert_queue
         ]
         self._alert_queue.clear()
-        return ["\n\n".join(parts)]
 
-    async def _send_telegram(self, text: str):
-        """Send a message via Telegram Bot API."""
-        if self._bot is None:
-            self._bot = Bot(token=self._bot_token)
-        await self._bot.send_message(
-            chat_id=self._chat_id, text=text, parse_mode="Markdown"
+        # Split into multiple messages if combined text exceeds limit
+        messages: list[str] = []
+        current: list[str] = []
+        current_len = 0
+
+        for part in parts:
+            # Account for separator between parts
+            separator_len = len("\n\n") if current else 0
+            if current and current_len + separator_len + len(part) > WHATSAPP_CHAR_LIMIT:
+                messages.append("\n\n".join(current))
+                current = [part]
+                current_len = len(part)
+            else:
+                current.append(part)
+                current_len += separator_len + len(part)
+
+        if current:
+            messages.append("\n\n".join(current))
+
+        return messages
+
+    def _send_whatsapp(self, text: str):
+        """Send a message via Twilio WhatsApp API."""
+        if self._client is None:
+            self._client = Client(self._account_sid, self._auth_token)
+        self._client.messages.create(
+            body=text,
+            from_=self._from_number,
+            to=self._to_number,
         )
 
     async def send_alert(
@@ -73,7 +106,7 @@ class AlertManager:
 
         if severity == AlertSeverity.CRITICAL:
             text = self.format_alert(severity, alert_type, message)
-            await self._send_telegram(text)
+            await asyncio.to_thread(self._send_whatsapp, text)
         else:
             self.queue_alert(severity, alert_type, message)
 
@@ -81,11 +114,11 @@ class AlertManager:
         """Flush the queue and send each combined message."""
         messages = self.flush_queue()
         for msg in messages:
-            await self._send_telegram(msg)
+            await asyncio.to_thread(self._send_whatsapp, msg)
 
     async def send_daily_summary(self, summary: dict):
-        """Format and send a daily summary via Telegram."""
-        lines = ["\U0001f4ca *Daily Summary*"]
+        """Format and send a daily summary via WhatsApp (plain text)."""
+        lines = ["\U0001f4ca Daily Summary"]
         if "regime" in summary:
             lines.append(f"Regime: {summary['regime']}")
         if "positions" in summary:
@@ -94,41 +127,4 @@ class AlertManager:
         if "sentiment_velocity" in summary:
             lines.append(f"Sentiment velocity: {summary['sentiment_velocity']:.3f}")
         text = "\n".join(lines)
-        await self._send_telegram(text)
-
-    def setup_commands(self, app: Application, config_updater=None):
-        """Register Telegram command handlers on the Application."""
-
-        async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            await update.message.reply_text("System is running.")
-
-        async def cmd_regime(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            await update.message.reply_text("Regime info not yet available.")
-
-        async def cmd_set(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if config_updater and context.args:
-                key, value = context.args[0], context.args[1] if len(context.args) > 1 else None
-                config_updater("set", key, value)
-                await update.message.reply_text(f"Set {key} = {value}")
-            else:
-                await update.message.reply_text("Usage: /set <key> <value>")
-
-        async def cmd_add(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if config_updater and context.args:
-                config_updater("add", context.args[0], context.args[1] if len(context.args) > 1 else None)
-                await update.message.reply_text(f"Added {context.args[0]}")
-            else:
-                await update.message.reply_text("Usage: /add <item> [value]")
-
-        async def cmd_remove(update: Update, context: ContextTypes.DEFAULT_TYPE):
-            if config_updater and context.args:
-                config_updater("remove", context.args[0], None)
-                await update.message.reply_text(f"Removed {context.args[0]}")
-            else:
-                await update.message.reply_text("Usage: /remove <item>")
-
-        app.add_handler(CommandHandler("status", cmd_status))
-        app.add_handler(CommandHandler("regime", cmd_regime))
-        app.add_handler(CommandHandler("set", cmd_set))
-        app.add_handler(CommandHandler("add", cmd_add))
-        app.add_handler(CommandHandler("remove", cmd_remove))
+        await asyncio.to_thread(self._send_whatsapp, text)

@@ -256,9 +256,13 @@ async def main_async(config_path: str, backtest: bool = False, crisis: str = Non
 
     fetcher = DataFetcher()
 
-    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
-    alert_mgr = AlertManager(bot_token=bot_token, chat_id=chat_id, store=store)
+    alert_mgr = AlertManager(
+        account_sid=os.environ.get("TWILIO_ACCOUNT_SID", ""),
+        auth_token=os.environ.get("TWILIO_AUTH_TOKEN", ""),
+        from_number=os.environ.get("TWILIO_WHATSAPP_FROM", ""),
+        to_number=os.environ.get("TWILIO_WHATSAPP_TO", ""),
+        store=store,
+    )
 
     # --- Initialize layers ---
     regime_detector = RegimeDetector(
