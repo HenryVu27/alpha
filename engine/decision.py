@@ -70,8 +70,16 @@ class DecisionEngine:
         return 0
 
     def sizing_to_signal(self, ticker_data: dict) -> int:
-        """Convert sizing edge to directional signal."""
-        return 1 if ticker_data.get("edge_positive", False) else -1
+        """Convert sizing edge to directional signal.
+
+        Returns 0 (neutral) when no sizing data exists — uncalibrated
+        layers should not vote.
+        """
+        if not ticker_data:
+            return 0  # no data = abstain, not bearish
+        if ticker_data.get("edge_positive", False):
+            return 1
+        return -1
 
     # ------------------------------------------------------------------
     # Convergence & conviction
